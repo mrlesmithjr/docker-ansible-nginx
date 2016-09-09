@@ -1,0 +1,15 @@
+version: '2'
+services:
+  nginx:
+    environment:
+      NGINX_ENABLE_PHP: "true"
+    image: "mrlesmithjr/nginx"
+    ports:
+      - "80:80"
+      - "443:443"
+    restart: "always"
+    volumes:
+      - "nginx_www:/usr/share/nginx/www"
+
+volumes:
+  nginx_www:

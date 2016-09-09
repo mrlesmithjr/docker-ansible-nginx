@@ -1,0 +1,33 @@
+[program:rsyslogd]
+autorestart=true
+autostart=true
+command = /usr/sbin/rsyslogd -n
+
+[program:cron]
+autorestart=true
+autostart=true
+command = /usr/sbin/cron -f -L 15
+
+[program:nginx]
+autorestart=true
+autostart=true
+command = /usr/sbin/nginx -g "daemon off;"
+priority=10
+stderr_events_enabled=true
+stdout_events_enabled=true
+username=www-data
+
+{% if nginx_enable_php == 'true' %}
+{%   if nginx_php_ver == 5 %}
+[program:php5-fpm]
+command=/usr/sbin/php5-fpm -c /{{ nginx_php_path }}/fpm
+{%   elif nginx_php_ver == 7 %}
+[program:php-fpm7.0]
+command=/usr/sbin/php-fpm7.0 -F
+{%   endif %}
+autostart=true
+autorestart=true
+priority=5
+stdout_events_enabled=true
+stderr_events_enabled=true
+{% endif %}
