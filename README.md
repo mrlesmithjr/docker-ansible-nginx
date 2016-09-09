@@ -1,6 +1,6 @@
 Repo Info
 =========
-Build [Docker] image for [NGINX]
+Build [Docker] image for [NGINX] provisioned via [Ansible]
 
 Building
 --------
