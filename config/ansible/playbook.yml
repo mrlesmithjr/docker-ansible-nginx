@@ -6,6 +6,10 @@
     gosu_ver: '1.9'
   roles:
   tasks:
+    - name: Updating Apt-Cache
+      apt:
+        update_cache: yes
+
     - name: Installing apt-transport-https
       apt:
         name: "apt-transport-https"
@@ -64,12 +68,13 @@
       apt:
         name: "nginx"
         state: "present"
+        install_recommends: no
 
     - name: Installing PHP-{{ nginx_php_ver }}
       apt:
         name: "{{ item }}"
         state: "present"
-        update_cache: true
+        install_recommends: no
       with_items:
         - 'php{{ nginx_php_ver }}'
         - 'php{{ nginx_php_ver }}-cli'
