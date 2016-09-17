@@ -1,4 +1,4 @@
-FROM mrlesmithjr/ubuntu-ansible:16.04
+FROM mrlesmithjr/alpine-ansible
 
 MAINTAINER Larry Smith Jr. <mrlesmithjr@gmail.com>
 
@@ -11,9 +11,8 @@ COPY config/ansible/ /
 # Run Ansible playbook
 RUN ansible-playbook -i "localhost," -c local /playbook.yml \
   --extra-vars "nginx_enable_php=$NGINX_ENABLE_PHP" && \
-  apt-get -y clean && \
-  apt-get -y autoremove && \
-  rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
+  rm -rf /tmp/* && \
+  rm -rf /var/cache/apk/*
 
 # Copy Docker Entrypoint
 COPY docker-entrypoint.sh /
@@ -21,7 +20,7 @@ RUN chmod +x /docker-entrypoint.sh
 
 ENTRYPOINT ["/docker-entrypoint.sh"]
 
-COPY config/supervisord/*.conf /etc/supervisor/conf.d/
+COPY config/supervisord/*.ini /etc/supervisor.d/
 
 # Expose ports
 EXPOSE 80 443

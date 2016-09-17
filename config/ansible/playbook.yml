@@ -3,82 +3,45 @@
   become: true
   connection: local
   vars:
-    gosu_ver: '1.9'
   roles:
   tasks:
-    - name: Updating Apt-Cache
-      apt:
+    - name: Updating APK Cache
+      apk:
         update_cache: yes
 
-    - name: Installing apt-transport-https
-      apt:
-        name: "apt-transport-https"
-        state: "present"
-
     - name: Installing ca-certificates
-      apt:
+      apk:
         name: "ca-certificates"
-        state: "latest"
-
-    - name: Installing dumb-init
-      apt:
-        deb: "https://github.com/Yelp/dumb-init/releases/download/v1.0.2/dumb-init_1.0.2_amd64.deb"
-
-    - name: Installing gosu
-      get_url:
-        url: "https://github.com/tianon/gosu/releases/download/{{ gosu_ver }}/gosu-amd64"
-        dest: "/usr/local/bin/gosu"
-        mode: 0755
+        state: "present"
 
     - name: Installing Pre-Reqs
-      apt:
+      apk:
         name: "{{ item }}"
         state: "present"
-        install_recommends: no
       with_items:
-        - 'cron'
         - 'rsyslog'
         - 'supervisor'
 
-    - name: setting Debian facts
-      set_fact:
-        nginx_web_group: "www-data"
-        nginx_web_owner: "www-data"
-        nginx_web_root: "/usr/share/nginx/html"
-      when: ansible_os_family == "Debian"
-
     - name: setting PHP version
       set_fact:
-        nginx_php_path: 'etc/php5'  #no leading / for template path
-        nginx_php_ver: 5
-      when: >
-            ansible_distribution == "Debian" or
-            (ansible_distribution == "Ubuntu" and
-            ansible_distribution_version <= '14.04')
-
-    - name: setting PHP version
-      set_fact:
-        nginx_php_path: 'etc/php/7.0'  #no leading / for template path
-        nginx_php_ver: 7.0
-      when: >
-            (ansible_distribution == "Ubuntu" and
-            ansible_distribution_version >= '16.04')
+        php_path: 'etc/php5'  #no leading / for template path
+        php_ver: 5
+      when: ansible_os_family == 'Alpine'
 
     - name: Installing NGINX
-      apt:
+      apk:
         name: "nginx"
         state: "present"
-        install_recommends: no
 
     - name: Installing PHP-{{ nginx_php_ver }}
-      apt:
+      apk:
         name: "{{ item }}"
         state: "present"
         install_recommends: no
       with_items:
-        - 'php{{ nginx_php_ver }}'
-        - 'php{{ nginx_php_ver }}-cli'
-        - 'php{{ nginx_php_ver }}-fpm'
+        - 'php{{ php_ver }}'
+        - 'php{{ php_ver }}-cli'
+        - 'php{{ php_ver }}-fpm'
       when: nginx_enable_php == 'true'
 
     - name: Ensuring /var/run/php Exists
@@ -86,3 +49,10 @@
         path: "/var/run/php"
         state: "directory"
       when: nginx_enable_php == 'true'
+
+    - name: Ensuring Folders exist
+      file:
+        path: "{{ item }}"
+        state: "directory"
+      with_items:
+        - '/run/nginx'
