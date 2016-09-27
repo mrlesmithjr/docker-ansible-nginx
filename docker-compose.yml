@@ -3,7 +3,7 @@ services:
   nginx:
     environment:
       NGINX_ENABLE_PHP: "true"
-    image: "mrlesmithjr/nginx"
+    image: "mrlesmithjr/nginx:alpine"
     ports:
       - "80:80"
       - "443:443"
